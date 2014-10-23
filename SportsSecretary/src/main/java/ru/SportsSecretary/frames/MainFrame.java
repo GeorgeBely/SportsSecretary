@@ -1,15 +1,13 @@
 package ru.SportsSecretary.frames;
 
 import com.javaswingcomponents.calendar.JSCCalendar;
-import com.javaswingcomponents.calendar.listeners.CalendarSelectionEventType;
 import com.javaswingcomponents.calendar.plaf.darksteel.DarkSteelCalendarUI;
-import ru.SportsSecretary.graphics.CustomCellRenderer;
+import ru.SportsSecretary.services.swing.CalendarService;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Основной фрейм приложения.
@@ -17,10 +15,10 @@ import java.util.List;
 public class MainFrame extends JFrame {
 
     /** Ширина окна */
-    private static final int WIDTH = 900;
+    private static final int WIDTH = 450;
 
     /** Высота окна */
-    private static final int HEIGHT = 535;
+    private static final int HEIGHT = 225;
 
     /** Наименование окна */
     private static final String TITLE = "SportSecretary";
@@ -42,47 +40,13 @@ public class MainFrame extends JFrame {
         }};
         add(panel);
 
-
-        JSCCalendar calendar2 = new JSCCalendar();
+        JSCCalendar calendar2 = new JSCCalendar(TimeZone.getDefault(), Locale.getDefault());
         calendar2.setUI(DarkSteelCalendarUI.createUI(calendar2));
         calendar2.setLocation(230, 10);
         calendar2.setSize(200, 200);
         panel.add(calendar2);
 
-        JSCCalendar calendar = new JSCCalendar() {{
-            setUI(DarkSteelCalendarUI.createUI(this));
-            setCalendarCellRenderer(new CustomCellRenderer());
-            setLocation(10, 10);
-            setSize(200, 200);
-        }};
-        panel.add(calendar);
-
-        calendar.addCalendarSelectionListener(calendarSelectionEvent -> {
-            List<Date> selectedDates = calendarSelectionEvent.getSelectedDates();
-            CalendarSelectionEventType selectionEventType = calendarSelectionEvent.getCalendarSelectionEventType();
-            switch (selectionEventType) {
-                case DATE_REMOVED: {
-                    System.out.println("A date has been removed. Date=" + selectedDates.get(0));
-                    break;
-                }
-                case DATE_SELECTED: {
-                    System.out.println("A date has been selected. Date=" + selectedDates.get(0));
-                    break;
-                }
-                case DATES_SELECTED: {
-                    System.out.println("Dates have been selected. Date=" + Arrays.toString(selectedDates.toArray()));
-                    break;
-                }
-                case DATES_CLEARED: {
-                    System.out.println("All dates have been cleared. Date=" + Arrays.toString(selectedDates.toArray()));
-                    break;
-                }
-                case DISPLAY_DATE_CHANGED: {
-                    System.out.println("Display date moved.");
-                    break;
-                }
-            }
-        });
+        panel.add(CalendarService.getCalendarComponent());
 
     }
 
