@@ -1,13 +1,10 @@
 package ru.SportsSecretary.frames;
 
 import com.javaswingcomponents.calendar.JSCCalendar;
-import com.javaswingcomponents.calendar.plaf.darksteel.DarkSteelCalendarUI;
 import ru.SportsSecretary.services.swing.CalendarService;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * Основной фрейм приложения.
@@ -15,10 +12,10 @@ import java.util.TimeZone;
 public class MainFrame extends JFrame {
 
     /** Ширина окна */
-    private static final int WIDTH = 450;
+    private static final int WIDTH = 1100;
 
     /** Высота окна */
-    private static final int HEIGHT = 225;
+    private static final int HEIGHT = 700;
 
     /** Наименование окна */
     private static final String TITLE = "SportSecretary";
@@ -40,13 +37,10 @@ public class MainFrame extends JFrame {
         }};
         add(panel);
 
-        JSCCalendar calendar2 = new JSCCalendar(TimeZone.getDefault(), Locale.getDefault());
-        calendar2.setUI(DarkSteelCalendarUI.createUI(calendar2));
-        calendar2.setLocation(230, 10);
-        calendar2.setSize(200, 200);
-        panel.add(calendar2);
-
-        panel.add(CalendarService.getCalendarComponent());
+        JSCCalendar calendar = CalendarService.getCalendarComponent();
+        calendar.setLocation(870, 10);
+        calendar.setSize(220, 220);
+        panel.add(calendar);
 
     }
 
