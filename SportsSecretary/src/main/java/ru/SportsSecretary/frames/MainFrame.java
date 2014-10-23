@@ -1,6 +1,7 @@
 package ru.SportsSecretary.frames;
 
 import com.javaswingcomponents.calendar.JSCCalendar;
+import ru.SportsSecretary.lesson.Lesson;
 import ru.SportsSecretary.services.swing.CalendarService;
 
 import javax.swing.*;
@@ -42,6 +43,18 @@ public class MainFrame extends JFrame {
         calendar.setSize(220, 220);
         panel.add(calendar);
 
+        JLabel kindSportLabel = new JLabel() {{
+            setText("Вид спорта");
+            setSize(100, 20);
+            setLocation(50, 50);
+        }};
+        panel.add(kindSportLabel);
+
+        JComboBox<Lesson> sportComboBox = new JComboBox<Lesson>() {{
+            setSize(250, 20);
+            setLocation(160, 50);
+        }};
+        panel.add(sportComboBox);
     }
 
 }

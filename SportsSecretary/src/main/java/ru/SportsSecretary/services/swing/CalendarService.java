@@ -10,7 +10,7 @@ import com.javaswingcomponents.calendar.plaf.darksteel.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
-
+import java.util.List;
 
 /**
  * Сервис для работы с компонентом календарь.
@@ -31,7 +31,7 @@ public class CalendarService {
         }};
 
         calendar.addCalendarSelectionListener(calendarSelectionEvent -> {
-            java.util.List<Date> selectedDates = calendarSelectionEvent.getSelectedDates();
+            List<Date> selectedDates = calendarSelectionEvent.getSelectedDates();
             CalendarSelectionEventType selectionEventType = calendarSelectionEvent.getCalendarSelectionEventType();
             switch (selectionEventType) {
                 case DATE_REMOVED: {
