@@ -5,26 +5,25 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Класс упражнения бег.
+ * Класс упражнения отжимания.
  */
-public class Run extends LessonType {
+public class Pushups extends LessonType {
 
     /** Наименование упражнения */
-    private static final String NAME = "Run";
+    private static final String NAME = "PushUps";
 
     /**Наименование упражнения на русском */
-    private static final String RUSSIAN_NAME = "Бег";
+    private static final String RUSSIAN_NAME = "Отжимания";
 
 
     /**
-     * Список характеристик упражнения бег.
+     * Список характеристик упражнения "отжимания".
      */
     private static final List<Property> defaultProperties = new ArrayList<Property>() {{
-        add(new Property("time", "Integer", "Бег"));
-        add(new Property("avgSpeed", "Integer", "Средняя скорость"));
-        add(new Property("maxSpeed", "Integer", "Максимальная скорость"));
-        add(new Property("calories", "Integer", "Калории"));
-        add(new Property("distance", "Integer", "Дистанция"));
+        add(new Property("Count", "Integer", "Количество"));
+        add(new Property("Approaches", "Integer", "Подходов"));
+        add(new Property("Approaches between time", "Integer", "Время между подходами"));
+        add(new Property("Slope", "Integer", "Наклон"));
     }};
 
     public List<Property> getProperties() {
