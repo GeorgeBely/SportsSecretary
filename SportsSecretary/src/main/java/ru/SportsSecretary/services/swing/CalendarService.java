@@ -23,8 +23,9 @@ public class CalendarService {
      *
      * @return календарь.
      */
-    public static JSCCalendar getCalendarComponent() {
+    public static JSCCalendar getCalendarComponent(Rectangle bound) {
         JSCCalendar calendar = new JSCCalendar() {{
+            setBounds(bound);
             setUI(DarkSteelCalendarUI.createUI(this));
             getCalendarModel().setFirstDayOfWeek(DayOfWeek.MONDAY);
             setCalendarCellRenderer(getCustomCellRenderer());
