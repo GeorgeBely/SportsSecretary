@@ -1,8 +1,8 @@
 package ru.SportsSecretary.frames;
 
-import ru.SportsSecretary.lesson.Lesson;
 import ru.SportsSecretary.lesson.LessonType;
 import ru.SportsSecretary.lesson.Property;
+import ru.SportsSecretary.services.LessonService;
 import ru.SportsSecretary.services.swing.CalendarService;
 
 import javax.swing.*;
@@ -18,14 +18,28 @@ import java.util.Map;
 public class MainFrame extends JFrame {
 
     /** Ширина окна */
-    private static final int FRAME_WIDTH = 400;
+    private static final int DEFAULT_FRAME_WIDTH = 1100;
 
     /** Высота окна */
-    private static final int FRAME_HEIGHT = 400;
+    private static final int DEFAULT_FRAME_HEIGHT = 800;
 
-    /** Расположение календаря */
-    private static final int LOCATION_CALENDAR_X = 870;
-    private static final int LOCATION_CALENDAR_Y = 10;
+    /** Расположение блока с календарём и записями занятий */
+    private static final int DEFAULT_LOCATION_RIGHT_PANEL_X = DEFAULT_FRAME_WIDTH - 235;
+    private static final int DEFAULT_LOCATION_RIGHT_PANEL_Y = 5;
+    private static final int DEFAULT_WEIGHT_RIGHT_PANEL = 240;
+
+    /** Размер календаря (В данный момент квадратный) */
+    private static final int DEFAULT_SIZE_CALENDAR = 230;
+
+    /** Расположение головного блока параметров */
+    private static final int DEFAULT_WEIGHT_HEADER_PANEL = DEFAULT_LOCATION_RIGHT_PANEL_X;
+    private static final int DEFAULT_HEIGHT_HEADER_PANEL = 400;
+
+    /** Расположение блока графиков */
+    private static final int DEFAULT_LOCATION_GRAPHICS_PANEL_X = 5;
+    private static final int DEFAULT_LOCATION_GRAPHICS_PANEL_Y = 400;
+    private static final int DEFAULT_WEIGHT_GRAPHICS_PANEL = DEFAULT_LOCATION_RIGHT_PANEL_X;
+    private static final int DEFAULT_HEIGHT_GRAPHICS_PANEL = 400;
 
     /** Расположение выбора типа спорта */
     private static final int LOCATION_KIND_SPORT_X = 50;
@@ -39,22 +53,36 @@ public class MainFrame extends JFrame {
     private static final String TITLE = "SportSecretary";
 
 
-    Container video;
-
-
-    Container lessonContainer;
-    JPanel lessonPanel;
+    private Container lessonContainer;
+    private Container headerContainer;
+    private Container graphicsContainer;
+    private JPanel lessonPanel;
 
     public MainFrame() {
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = kit.getScreenSize();
-        setLocation(screenSize.width / 2 - FRAME_WIDTH / 2, screenSize.height / 2 - FRAME_HEIGHT / 2);
-        setSize(FRAME_WIDTH, FRAME_HEIGHT);
+        setLocation(screenSize.width / 2 - DEFAULT_FRAME_WIDTH / 2, screenSize.height / 2 - DEFAULT_FRAME_HEIGHT / 2);
+        setSize(DEFAULT_FRAME_WIDTH, DEFAULT_FRAME_HEIGHT);
         setTitle(TITLE);
-//        setResizable(false);
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+        addComponentListener(new ComponentListener() {
+            public void componentResized(ComponentEvent e) {
+                resizeFrame();
+            }
+            public void componentMoved(ComponentEvent e) {}
+            public void componentShown(ComponentEvent e) {}
+            public void componentHidden(ComponentEvent e) {}
+        });
+
+        initComponent();
+    }
+
+    /**
+     * Инициализация компонентов.
+     */
+    private void initComponent() {
         JPanel panel = new JPanel() {{
             setFocusable(true);
             setLayout(null);
@@ -62,126 +90,87 @@ public class MainFrame extends JFrame {
         }};
         add(panel);
 
+        initLessonContainer(panel);
+        initHeaderContainer(panel);
+        initGraphicsContainer(panel);
+    }
 
-        video = new Container() {{
-            setSize(100, 100);
-            setLocation(10, 10);
-            setBackground(Color.BLUE);
-        }};
-        JPanel p = new JPanel() {{
-            setLocation(10, 10);
-            setSize(30, 20);
-            setBackground(Color.CYAN);
-        }};
-        panel.add(video);
-        video.add(p, BorderLayout.CENTER);
-
+    /**
+     * Инициализация боковой панели. Календарь и список задач.
+     */
+    private void initLessonContainer(JPanel panel) {
         lessonContainer = new Container() {{
-            setSize(240, FRAME_HEIGHT);
-            setLocation(FRAME_WIDTH - 240, 0);
+            setSize(DEFAULT_WEIGHT_RIGHT_PANEL, DEFAULT_FRAME_HEIGHT);
+            setLocation(DEFAULT_LOCATION_RIGHT_PANEL_X, DEFAULT_LOCATION_RIGHT_PANEL_Y);
             setBackground(Color.LIGHT_GRAY);
         }};
         panel.add(lessonContainer);
 
-
-//
-//        JPanel dPanel = new JPanel(){{
-//            setPreferredSize(new Dimension(100, 100));
-//            setMinimumSize(new Dimension(100, 100));
-//            setMaximumSize(new Dimension(100, 100));
-//            setBackground(Color.RED);
-//        }};
-//        add(dPanel, BorderLayout.EAST);
-
-
-//        panel = new JPanel(){{
-//            setPreferredSize(new Dimension(FRAME_WIDTH - 230, FRAME_HEIGHT));
-//            setMinimumSize(new Dimension(FRAME_WIDTH - 230, FRAME_HEIGHT));
-//            setMaximumSize(new Dimension(FRAME_WIDTH - 230, FRAME_HEIGHT));
-//            setFocusable(true);
-//            setLayout(null);
-//            setBackground(Color.LIGHT_GRAY);
-//        }};
-//        add(panel, BorderLayout.WEST);
-//
-//        lessonPanel = new JPanel() {{
-//            setPreferredSize(new Dimension(220, FRAME_HEIGHT));
-//            setBackground(Color.WHITE);
-//            setLayout(null);
-//            setVisible(true);
-//        }};
-//        add(lessonPanel, BorderLayout.EAST);
-
-        addComponentListener(new ComponentListener() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                resizedFrame();
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent e) {
-
-            }
-
-            @Override
-            public void componentShown(ComponentEvent e) {
-
-            }
-
-            @Override
-            public void componentHidden(ComponentEvent e) {
-
-            }
-        });
-
-        init();
-    }
-
-    /**
-     * Инициализация компонентов.
-     */
-    private void init() {
-        lessonContainer.add(CalendarService.getCalendarComponent(new Rectangle(10, 10, 220, 220)));
+        lessonContainer.add(CalendarService.getCalendarComponent(new Rectangle(0, 0, DEFAULT_SIZE_CALENDAR, DEFAULT_SIZE_CALENDAR)));
 
         lessonPanel = new JPanel() {{
             setSize(lessonContainer.getWidth() - 10, lessonContainer.getHeight() - 245);
-            setLocation(5, 240);
+            setLocation(0, 230);
             setBackground(Color.WHITE);
             setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         }};
         lessonContainer.add(lessonPanel);
-//        JLabel kindSportLabel = new JLabel() {{
-//            setText("Вид спорта");
-//            setSize(100, 20);
-//            setLocation(LOCATION_KIND_SPORT_X, LOCATION_KIND_SPORT_Y);
-//        }};
-//        panel.add(kindSportLabel);
-//
-//        JComboBox<LessonType> sportComboBox = new JComboBox<LessonType>() {{
-//            setModel(new DefaultComboBoxModel<>(LessonService.getLessonsTypeNames()));
-//            setLocation(LOCATION_KIND_SPORT_X + 110, LOCATION_KIND_SPORT_Y);
-//            setSize(250, 20);
-//            addActionListener(e -> viewLesson((LessonType) getSelectedItem(), panel));
-//        }};
-//        panel.add(sportComboBox);
 
     }
 
     /**
-     * Действия при изминении окна.
+     * Инициализация верхней панели выбора типа упражений и другие параметры.
      */
-    private void resizedFrame() {
-        lessonContainer.setLocation(getWidth() - 240, 0);
-        lessonContainer.setSize(lessonContainer.getWidth(), getHeight());
-        lessonPanel.setSize(lessonPanel.getWidth(), getHeight() - 245);
+    private void initHeaderContainer(JPanel panel) {
+        headerContainer = new Container() {{
+            setSize(DEFAULT_WEIGHT_HEADER_PANEL, DEFAULT_HEIGHT_HEADER_PANEL);
+            setLocation(0, 0);
+            setBackground(Color.LIGHT_GRAY);
+        }};
+        panel.add(headerContainer);
+
+
+        JLabel kindSportLabel = new JLabel() {{
+            setText("Вид спорта");
+            setSize(100, 20);
+            setLocation(LOCATION_KIND_SPORT_X, LOCATION_KIND_SPORT_Y);
+        }};
+        headerContainer.add(kindSportLabel);
+
+        JComboBox<LessonType> sportComboBox = new JComboBox<LessonType>() {{
+            setModel(new DefaultComboBoxModel<>(LessonService.getLessonsTypeNames()));
+            setLocation(LOCATION_KIND_SPORT_X + 110, LOCATION_KIND_SPORT_Y);
+            setSize(250, 20);
+            addActionListener(e -> viewLesson((LessonType) getSelectedItem()));
+        }};
+        headerContainer.add(sportComboBox);
     }
 
-    private static void viewLesson(LessonType type, JPanel panel) {
+    private void initGraphicsContainer(JPanel panel) {
+        graphicsContainer = new Container() {{
+            setLocation(DEFAULT_LOCATION_GRAPHICS_PANEL_X, DEFAULT_LOCATION_GRAPHICS_PANEL_Y);
+            setSize(DEFAULT_WEIGHT_GRAPHICS_PANEL, DEFAULT_HEIGHT_GRAPHICS_PANEL);
+            setBackground(Color.LIGHT_GRAY);
+        }};
+        panel.add(graphicsContainer);
+
+    }
+
+    /**
+     * Действия при изминении размера окна.
+     */
+    private void resizeFrame() {
+        lessonContainer.setLocation(getWidth() - 235, 5);
+        lessonContainer.setSize(lessonContainer.getWidth(), getHeight());
+        lessonPanel.setSize(lessonPanel.getWidth(), getHeight() - DEFAULT_SIZE_CALENDAR - DEFAULT_LOCATION_RIGHT_PANEL_Y - 5);
+    }
+
+    private void viewLesson(LessonType type) {
         int propertyX = LOCATION_PROPERTIES_X;
         int propertyY = LOCATION_PROPERTIES_Y;
 
 
-        Lesson lesson = new Lesson();
+//        Lesson lesson = new Lesson();
         Map<Property, Object> defaultProperties = new HashMap<>();
 
         for (Property property : type.getProperties()) {
@@ -203,20 +192,20 @@ public class MainFrame extends JFrame {
                 propertyLabel.setText(property.getName());
                 propertyLabel.setSize(100, 20);
                 propertyLabel.setLocation(propertyX, propertyY);
-                panel.add(propertyLabel);
+                headerContainer.add(propertyLabel);
 
                 JLabel valueLabel = new JLabel();
                 valueLabel.setText(String.valueOf(defaultProperties.get(property)));
                 valueLabel.setSize(100, 20);
                 valueLabel.setLocation(propertyX + 100, propertyY);
-                panel.add(valueLabel);
+                headerContainer.add(valueLabel);
 
                 propertyY += 30;
             }
         }
 
-        panel.setVisible(false);
-        panel.setVisible(true);
+//        panel.setVisible(false);
+//        panel.setVisible(true);
     }
 
 }
