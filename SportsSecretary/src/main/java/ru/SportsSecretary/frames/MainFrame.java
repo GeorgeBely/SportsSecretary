@@ -1,14 +1,21 @@
 package ru.SportsSecretary.frames;
 
+import org.jfree.chart.ChartPanel;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.time.Minute;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
 import ru.SportsSecretary.lesson.LessonType;
 import ru.SportsSecretary.lesson.Property;
 import ru.SportsSecretary.services.LessonService;
 import ru.SportsSecretary.services.swing.CalendarService;
+import ru.SportsSecretary.services.swing.GraphicsService;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,6 +64,8 @@ public class MainFrame extends JFrame {
     private Container headerContainer;
     private Container graphicsContainer;
     private JPanel lessonPanel;
+    private ChartPanel categoryPanel;
+    private ChartPanel piePanel;
 
     public MainFrame() {
         Toolkit kit = Toolkit.getDefaultToolkit();
@@ -86,7 +95,7 @@ public class MainFrame extends JFrame {
         JPanel panel = new JPanel() {{
             setFocusable(true);
             setLayout(null);
-            setBackground(Color.LIGHT_GRAY);
+//            setBackground(Color.LIGHT_GRAY);
         }};
         add(panel);
 
@@ -102,7 +111,6 @@ public class MainFrame extends JFrame {
         lessonContainer = new Container() {{
             setSize(DEFAULT_WEIGHT_RIGHT_PANEL, DEFAULT_FRAME_HEIGHT);
             setLocation(DEFAULT_LOCATION_RIGHT_PANEL_X, DEFAULT_LOCATION_RIGHT_PANEL_Y);
-            setBackground(Color.LIGHT_GRAY);
         }};
         panel.add(lessonContainer);
 
@@ -125,7 +133,7 @@ public class MainFrame extends JFrame {
         headerContainer = new Container() {{
             setSize(DEFAULT_WEIGHT_HEADER_PANEL, DEFAULT_HEIGHT_HEADER_PANEL);
             setLocation(0, 0);
-            setBackground(Color.LIGHT_GRAY);
+            setBackground(Color.BLUE);
         }};
         panel.add(headerContainer);
 
@@ -134,6 +142,7 @@ public class MainFrame extends JFrame {
             setText("Вид спорта");
             setSize(100, 20);
             setLocation(LOCATION_KIND_SPORT_X, LOCATION_KIND_SPORT_Y);
+            setBackground(Color.CYAN);
         }};
         headerContainer.add(kindSportLabel);
 
@@ -150,10 +159,49 @@ public class MainFrame extends JFrame {
         graphicsContainer = new Container() {{
             setLocation(DEFAULT_LOCATION_GRAPHICS_PANEL_X, DEFAULT_LOCATION_GRAPHICS_PANEL_Y);
             setSize(DEFAULT_WEIGHT_GRAPHICS_PANEL, DEFAULT_HEIGHT_GRAPHICS_PANEL);
-            setBackground(Color.LIGHT_GRAY);
         }};
         panel.add(graphicsContainer);
 
+        DefaultPieDataset data = new DefaultPieDataset() {{
+            setValue("трицепс", 44);
+            setValue("гантеля", 36);
+            setValue("прес", 26);
+            setValue("бег", 20);
+            setValue("растяжка", 19);
+            setValue("отжимания", 14);
+            setValue("присидания", 14);
+            setValue("подтягивания", 12);
+            setValue("жим лёжа", 11);
+            setValue("прочие", 4);
+        }};
+        piePanel = new ChartPanel(GraphicsService.getPieComponent("Время затраченное на тренировки", data, this.getBackground())) {{
+            setLocation(0, 0);
+            setSize(450, 350);
+        }};
+        graphicsContainer.add(piePanel);
+
+        TimeSeriesCollection dataset = new TimeSeriesCollection() {{
+            addSeries(new TimeSeries("Гонтеля") {{
+                add(new Minute(0, 0, 7, 12, 2012), 50);
+                add(new Minute(30, 12, 7, 2, 2013), 70);
+                add(new Minute(15, 14, 7, 12, 2013), 80);
+                add(new Minute(new Date()), 100);
+            }});
+            addSeries(new TimeSeries("Штанга") {{
+                add(new Minute(0, 3, 7, 12, 2012), 5);
+                add(new Minute(30, 9, 7, 2, 2013), 12);
+                add(new Minute(15, 10, 7, 12, 2013), 15);
+                add(new Minute(new Date()), 18);
+            }});
+        }};
+
+
+        categoryPanel = new ChartPanel(GraphicsService.getTimeSeriesComponent("График отношение веса",
+                                       "Дата тренировки", "вес", dataset, this.getBackground())) {{
+            setLocation(450, 0);
+            setSize(450, 350);
+        }};
+        graphicsContainer.add(categoryPanel);
     }
 
     /**
@@ -162,6 +210,11 @@ public class MainFrame extends JFrame {
     private void resizeFrame() {
         lessonContainer.setLocation(getWidth() - 235, 5);
         lessonContainer.setSize(lessonContainer.getWidth(), getHeight());
+        graphicsContainer.setLocation(0, getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL);
+        graphicsContainer.setSize(lessonContainer.getX(), DEFAULT_HEIGHT_GRAPHICS_PANEL);
+        categoryPanel.setLocation(graphicsContainer.getWidth() - 460, 0);
+        categoryPanel.setSize(categoryPanel.getWidth(), graphicsContainer.getHeight() - 10);
+        piePanel.setSize(categoryPanel.getX() - 10, graphicsContainer.getHeight() - 10);
         lessonPanel.setSize(lessonPanel.getWidth(), getHeight() - DEFAULT_SIZE_CALENDAR - DEFAULT_LOCATION_RIGHT_PANEL_Y - 5);
     }
 
