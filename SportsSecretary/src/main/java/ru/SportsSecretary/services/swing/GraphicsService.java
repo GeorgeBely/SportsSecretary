@@ -29,7 +29,7 @@ public class GraphicsService {
         chart.setBackgroundPaint(background);
 
         PiePlot plot = (PiePlot) chart.getPlot();
-        plot.setExplodePercent(new Integer(0), 0.20);
+        plot.setExplodePercent((String) data.getKeys().get(0), 0.20);
         plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}({2})"));
         plot.setBackgroundPaint(background);
         plot.setLabelLinkStyle(PieLabelLinkStyle.STANDARD);

@@ -44,7 +44,7 @@ public class MainFrame extends JFrame {
 
     /** Расположение блока графиков */
     private static final int DEFAULT_LOCATION_GRAPHICS_PANEL_X = 5;
-    private static final int DEFAULT_LOCATION_GRAPHICS_PANEL_Y = 400;
+    private static final int DEFAULT_LOCATION_GRAPHICS_PANEL_Y = DEFAULT_FRAME_HEIGHT - 400;
     private static final int DEFAULT_WEIGHT_GRAPHICS_PANEL = DEFAULT_LOCATION_RIGHT_PANEL_X;
     private static final int DEFAULT_HEIGHT_GRAPHICS_PANEL = 400;
 
@@ -195,7 +195,6 @@ public class MainFrame extends JFrame {
             }});
         }};
 
-
         categoryPanel = new ChartPanel(GraphicsService.getTimeSeriesComponent("График отношение веса",
                                        "Дата тренировки", "вес", dataset, this.getBackground())) {{
             setLocation(450, 0);
@@ -208,14 +207,31 @@ public class MainFrame extends JFrame {
      * Действия при изминении размера окна.
      */
     private void resizeFrame() {
+        graphicsContainer.setSize(lessonContainer.getX(), graphicsContainer.getHeight());
+        if (getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL < DEFAULT_LOCATION_GRAPHICS_PANEL_Y) {
+            if (getHeight() - DEFAULT_LOCATION_GRAPHICS_PANEL_Y < DEFAULT_HEIGHT_GRAPHICS_PANEL/2) {
+                graphicsContainer.setVisible(false);
+            } else {
+                graphicsContainer.setVisible(true);
+                graphicsContainer.setSize(graphicsContainer.getWidth(), getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL);
+            }
+        } else {
+            graphicsContainer.setLocation(0, getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL);
+        }
+
+
         lessonContainer.setLocation(getWidth() - 235, 5);
         lessonContainer.setSize(lessonContainer.getWidth(), getHeight());
-        graphicsContainer.setLocation(0, getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL);
-        graphicsContainer.setSize(lessonContainer.getX(), DEFAULT_HEIGHT_GRAPHICS_PANEL);
+
+
         categoryPanel.setLocation(graphicsContainer.getWidth() - 460, 0);
         categoryPanel.setSize(categoryPanel.getWidth(), graphicsContainer.getHeight() - 10);
         piePanel.setSize(categoryPanel.getX() - 10, graphicsContainer.getHeight() - 10);
+
+
         lessonPanel.setSize(lessonPanel.getWidth(), getHeight() - DEFAULT_SIZE_CALENDAR - DEFAULT_LOCATION_RIGHT_PANEL_Y - 5);
+
+
     }
 
     private void viewLesson(LessonType type) {
