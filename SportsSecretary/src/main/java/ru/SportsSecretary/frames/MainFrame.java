@@ -10,14 +10,14 @@ import ru.SportsSecretary.lesson.Property;
 import ru.SportsSecretary.services.LessonService;
 import ru.SportsSecretary.services.swing.CalendarService;
 import ru.SportsSecretary.services.swing.GraphicsService;
+import ru.SportsSecretary.swing.Container;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Основной фрейм приложения.
@@ -31,22 +31,23 @@ public class MainFrame extends JFrame {
     private static final int DEFAULT_FRAME_HEIGHT = 800;
 
     /** Расположение блока с календарём и записями занятий */
-    private static final int DEFAULT_LOCATION_RIGHT_PANEL_X = DEFAULT_FRAME_WIDTH - 235;
     private static final int DEFAULT_LOCATION_RIGHT_PANEL_Y = 5;
-    private static final int DEFAULT_WEIGHT_RIGHT_PANEL = 240;
+    private static final int DEFAULT_WIDTH_RIGHT_PANEL = 240;
+    private static final int DEFAULT_HEIGHT_RIGHT_PANEL = DEFAULT_FRAME_HEIGHT;
+    private static final int DEFAULT_LOCATION_RIGHT_PANEL_INVERT_X = DEFAULT_WIDTH_RIGHT_PANEL + 5;
 
     /** Размер календаря (В данный момент квадратный) */
     private static final int DEFAULT_SIZE_CALENDAR = 230;
 
     /** Расположение головного блока параметров */
-    private static final int DEFAULT_WEIGHT_HEADER_PANEL = DEFAULT_LOCATION_RIGHT_PANEL_X;
+    private static final int DEFAULT_WIDTH_HEADER_PANEL = DEFAULT_LOCATION_RIGHT_PANEL_INVERT_X;
     private static final int DEFAULT_HEIGHT_HEADER_PANEL = 400;
 
     /** Расположение блока графиков */
     private static final int DEFAULT_LOCATION_GRAPHICS_PANEL_X = 5;
-    private static final int DEFAULT_LOCATION_GRAPHICS_PANEL_Y = DEFAULT_FRAME_HEIGHT - 400;
-    private static final int DEFAULT_WEIGHT_GRAPHICS_PANEL = DEFAULT_LOCATION_RIGHT_PANEL_X;
+    private static final int DEFAULT_WIDTH_GRAPHICS_PANEL = DEFAULT_FRAME_WIDTH - DEFAULT_LOCATION_RIGHT_PANEL_INVERT_X - DEFAULT_LOCATION_GRAPHICS_PANEL_X;
     private static final int DEFAULT_HEIGHT_GRAPHICS_PANEL = 400;
+    private static final int DEFAULT_LOCATION_GRAPHICS_PANEL_Y = DEFAULT_FRAME_HEIGHT - DEFAULT_HEIGHT_GRAPHICS_PANEL - 5;
 
     /** Расположение выбора типа спорта */
     private static final int LOCATION_KIND_SPORT_X = 50;
@@ -63,7 +64,8 @@ public class MainFrame extends JFrame {
     private Container lessonContainer;
     private Container headerContainer;
     private Container graphicsContainer;
-    private JPanel lessonPanel;
+    private JScrollPane lessonPane;
+    private JTable lessonTable;
     private ChartPanel categoryPanel;
     private ChartPanel piePanel;
 
@@ -86,6 +88,7 @@ public class MainFrame extends JFrame {
         });
 
         initComponent();
+        initValues();
     }
 
     /**
@@ -108,21 +111,24 @@ public class MainFrame extends JFrame {
      * Инициализация боковой панели. Календарь и список задач.
      */
     private void initLessonContainer(JPanel panel) {
-        lessonContainer = new Container() {{
-            setSize(DEFAULT_WEIGHT_RIGHT_PANEL, DEFAULT_FRAME_HEIGHT);
-            setLocation(DEFAULT_LOCATION_RIGHT_PANEL_X, DEFAULT_LOCATION_RIGHT_PANEL_Y);
+        lessonContainer = new Container(DEFAULT_LOCATION_RIGHT_PANEL_INVERT_X, DEFAULT_LOCATION_RIGHT_PANEL_Y,
+                DEFAULT_WIDTH_RIGHT_PANEL, DEFAULT_HEIGHT_RIGHT_PANEL, true, false, DEFAULT_LOCATION_RIGHT_PANEL_INVERT_X /2,
+                null, DEFAULT_WIDTH_RIGHT_PANEL /2, DEFAULT_HEIGHT_RIGHT_PANEL/2, this) {{
         }};
         panel.add(lessonContainer);
 
         lessonContainer.add(CalendarService.getCalendarComponent(new Rectangle(0, 0, DEFAULT_SIZE_CALENDAR, DEFAULT_SIZE_CALENDAR)));
 
-        lessonPanel = new JPanel() {{
-            setSize(lessonContainer.getWidth() - 10, lessonContainer.getHeight() - 245);
-            setLocation(0, 230);
-            setBackground(Color.WHITE);
+        lessonTable = new JTable() {{
             setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+            ((DefaultTableModel) getModel()).setColumnIdentifiers(new String[]{"Время", "Вид спорта", "Значение"});
         }};
-        lessonContainer.add(lessonPanel);
+        lessonPane = new JScrollPane(lessonTable) {{
+            setSize(lessonContainer.getWidth() - 10, lessonContainer.getHeight() - DEFAULT_SIZE_CALENDAR - 15);
+            setLocation(0, DEFAULT_SIZE_CALENDAR + 5);
+        }};
+
+        lessonContainer.add(lessonPane);
 
     }
 
@@ -130,9 +136,8 @@ public class MainFrame extends JFrame {
      * Инициализация верхней панели выбора типа упражений и другие параметры.
      */
     private void initHeaderContainer(JPanel panel) {
-        headerContainer = new Container() {{
-            setSize(DEFAULT_WEIGHT_HEADER_PANEL, DEFAULT_HEIGHT_HEADER_PANEL);
-            setLocation(0, 0);
+        headerContainer = new Container(0, 0, DEFAULT_WIDTH_HEADER_PANEL, DEFAULT_HEIGHT_HEADER_PANEL, false, false,
+                null, null, DEFAULT_WIDTH_HEADER_PANEL /2, DEFAULT_HEIGHT_HEADER_PANEL/2, this) {{
             setBackground(Color.BLUE);
         }};
         panel.add(headerContainer);
@@ -156,10 +161,9 @@ public class MainFrame extends JFrame {
     }
 
     private void initGraphicsContainer(JPanel panel) {
-        graphicsContainer = new Container() {{
-            setLocation(DEFAULT_LOCATION_GRAPHICS_PANEL_X, DEFAULT_LOCATION_GRAPHICS_PANEL_Y);
-            setSize(DEFAULT_WEIGHT_GRAPHICS_PANEL, DEFAULT_HEIGHT_GRAPHICS_PANEL);
-        }};
+        graphicsContainer = new Container(DEFAULT_LOCATION_GRAPHICS_PANEL_X, DEFAULT_LOCATION_GRAPHICS_PANEL_Y,
+                DEFAULT_WIDTH_GRAPHICS_PANEL, DEFAULT_HEIGHT_GRAPHICS_PANEL, false, true, null,
+                DEFAULT_LOCATION_GRAPHICS_PANEL_Y/2, DEFAULT_WIDTH_GRAPHICS_PANEL /2, DEFAULT_HEIGHT_GRAPHICS_PANEL/2, this);
         panel.add(graphicsContainer);
 
         DefaultPieDataset data = new DefaultPieDataset() {{
@@ -180,7 +184,7 @@ public class MainFrame extends JFrame {
         }};
         graphicsContainer.add(piePanel);
 
-        TimeSeriesCollection dataset = new TimeSeriesCollection() {{
+        TimeSeriesCollection dataSet = new TimeSeriesCollection() {{
             addSeries(new TimeSeries("Гонтеля") {{
                 add(new Minute(0, 0, 7, 12, 2012), 50);
                 add(new Minute(30, 12, 7, 2, 2013), 70);
@@ -196,7 +200,7 @@ public class MainFrame extends JFrame {
         }};
 
         categoryPanel = new ChartPanel(GraphicsService.getTimeSeriesComponent("График отношение веса",
-                                       "Дата тренировки", "вес", dataset, this.getBackground())) {{
+                                       "Дата тренировки", "вес", dataSet, this.getBackground())) {{
             setLocation(450, 0);
             setSize(450, 350);
         }};
@@ -207,21 +211,22 @@ public class MainFrame extends JFrame {
      * Действия при изминении размера окна.
      */
     private void resizeFrame() {
-        graphicsContainer.setSize(lessonContainer.getX(), graphicsContainer.getHeight());
-        if (getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL < DEFAULT_LOCATION_GRAPHICS_PANEL_Y) {
-            if (getHeight() - DEFAULT_LOCATION_GRAPHICS_PANEL_Y < DEFAULT_HEIGHT_GRAPHICS_PANEL/2) {
-                graphicsContainer.setVisible(false);
-            } else {
-                graphicsContainer.setVisible(true);
-                graphicsContainer.setSize(graphicsContainer.getWidth(), getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL);
-            }
-        } else {
-            graphicsContainer.setLocation(0, getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL);
-        }
+//        graphicsContainer.setSize(lessonContainer.getX(), graphicsContainer.getHeight());
+//        if (getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL < DEFAULT_LOCATION_GRAPHICS_PANEL_Y) {
+//            if (getHeight() - DEFAULT_LOCATION_GRAPHICS_PANEL_Y < DEFAULT_HEIGHT_GRAPHICS_PANEL/2) {
+//                graphicsContainer.setVisible(false);
+//            } else {
+//                graphicsContainer.setVisible(true);
+//                graphicsContainer.setSize(graphicsContainer.getWidth(), getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL);
+//            }
+//        } else {
+//            graphicsContainer.setLocation(0, getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL);
+//        }
+        graphicsContainer.resize(this);
+        lessonContainer.resize(this);
 
-
-        lessonContainer.setLocation(getWidth() - 235, 5);
-        lessonContainer.setSize(lessonContainer.getWidth(), getHeight());
+//        lessonContainer.setLocation(getWidth() - 235, 5);
+//        lessonContainer.setSize(lessonContainer.getWidth(), getHeight());
 
 
         categoryPanel.setLocation(graphicsContainer.getWidth() - 460, 0);
@@ -229,9 +234,7 @@ public class MainFrame extends JFrame {
         piePanel.setSize(categoryPanel.getX() - 10, graphicsContainer.getHeight() - 10);
 
 
-        lessonPanel.setSize(lessonPanel.getWidth(), getHeight() - DEFAULT_SIZE_CALENDAR - DEFAULT_LOCATION_RIGHT_PANEL_Y - 5);
-
-
+        lessonPane.setSize(lessonPane.getWidth(), getHeight() - DEFAULT_SIZE_CALENDAR - DEFAULT_LOCATION_RIGHT_PANEL_Y - 5);
     }
 
     private void viewLesson(LessonType type) {
@@ -269,12 +272,16 @@ public class MainFrame extends JFrame {
                 valueLabel.setLocation(propertyX + 100, propertyY);
                 headerContainer.add(valueLabel);
 
-                propertyY += 30;
+                propertyY += 20;
             }
         }
 
 //        panel.setVisible(false);
 //        panel.setVisible(true);
+    }
+
+    private void initValues() {
+
     }
 
 }
