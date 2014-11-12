@@ -37,6 +37,6 @@ public class Pushups extends LessonType {
     }
 
     public String toString() {
-        return RUSSIAN_NAME;
+        return getName();
     }
 }

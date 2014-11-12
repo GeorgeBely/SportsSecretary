@@ -28,8 +28,8 @@ public class Container extends java.awt.Container {
         this.heightMin = heightMin;
         this.invertedX = invertedX;
         this.invertedY = invertedY;
-        this.indentWidth = invertedX ? parentContainer.getWidth() - weight - x : weight;
-        this.indentHeight = invertedY ? parentContainer.getHeight() - height - y : height;
+        this.indentWidth = parentContainer.getWidth() - weight - x;
+        this.indentHeight = parentContainer.getHeight() - height - y;
 
         setSize(weight, height);
         setLocation(invertedX ? parentContainer.getWidth() - x : x, invertedY ? parentContainer.getHeight() - y : y);
@@ -55,16 +55,16 @@ public class Container extends java.awt.Container {
             newWidth = parentContainer.getWidth() - xMin - indentWidth;
         }
         Integer newHeight = getHeight();
-//        if (getY() == yMin) {
-//            newHeight = parentContainer.getHeight() - yMin - indentHeight;
-//        }
+        if (getY() == yMin) {
+            newHeight = parentContainer.getHeight() - yMin - indentHeight;
+        }
 
-//        if (newWidth < widthMin || newHeight < heightMin) {
-//            setVisible(false);
-//        } else {
-//            setVisible(true);
+        if (newWidth < widthMin || newHeight < heightMin) {
+            setVisible(false);
+        } else {
+            setVisible(true);
             setSize(newWidth, newHeight);
             setLocation(newLocationX, newLocationY);
-//        }
+        }
     }
 }
