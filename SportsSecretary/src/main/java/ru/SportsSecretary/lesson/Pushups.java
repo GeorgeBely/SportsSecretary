@@ -20,10 +20,10 @@ public class Pushups extends LessonType {
      * Список характеристик упражнения "отжимания".
      */
     private static final List<Property> defaultProperties = new ArrayList<Property>() {{
-        add(new Property("Count", "Integer", "Количество"));
-        add(new Property("Approaches", "Integer", "Подходов"));
-        add(new Property("Approaches between time", "Integer", "Время между подходами"));
-        add(new Property("Slope", "Integer", "Наклон"));
+        add(new Property("Count", "Number", "Количество"));
+        add(new Property("Approaches", "Number", "Подходов"));
+        add(new Property("Approaches between time", "Number", "Время между подходами"));
+        add(new Property("Slope", "Number", "Наклон"));
     }};
 
     public List<Property> getProperties() {

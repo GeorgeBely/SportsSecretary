@@ -40,7 +40,7 @@ public class MainFrame extends JFrame {
     private static final int DEFAULT_SIZE_CALENDAR = 230;
 
     /** Расположение головного блока параметров */
-    private static final int DEFAULT_WIDTH_HEADER_PANEL = DEFAULT_LOCATION_RIGHT_PANEL_INVERT_X;
+    private static final int DEFAULT_WIDTH_HEADER_PANEL = DEFAULT_FRAME_WIDTH - DEFAULT_LOCATION_RIGHT_PANEL_INVERT_X;
     private static final int DEFAULT_HEIGHT_HEADER_PANEL = 400;
 
     /** Расположение блока графиков */
@@ -70,8 +70,7 @@ public class MainFrame extends JFrame {
     private ChartPanel piePanel;
 
     public MainFrame() {
-        Toolkit kit = Toolkit.getDefaultToolkit();
-        Dimension screenSize = kit.getScreenSize();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation(screenSize.width / 2 - DEFAULT_FRAME_WIDTH / 2, screenSize.height / 2 - DEFAULT_FRAME_HEIGHT / 2);
         setSize(DEFAULT_FRAME_WIDTH, DEFAULT_FRAME_HEIGHT);
         setTitle(TITLE);
@@ -98,7 +97,6 @@ public class MainFrame extends JFrame {
         JPanel panel = new JPanel() {{
             setFocusable(true);
             setLayout(null);
-//            setBackground(Color.LIGHT_GRAY);
         }};
         add(panel);
 
@@ -113,11 +111,11 @@ public class MainFrame extends JFrame {
     private void initLessonContainer(JPanel panel) {
         lessonContainer = new Container(DEFAULT_LOCATION_RIGHT_PANEL_INVERT_X, DEFAULT_LOCATION_RIGHT_PANEL_Y,
                 DEFAULT_WIDTH_RIGHT_PANEL, DEFAULT_HEIGHT_RIGHT_PANEL, true, false, DEFAULT_LOCATION_RIGHT_PANEL_INVERT_X /2,
-                null, DEFAULT_WIDTH_RIGHT_PANEL /2, DEFAULT_HEIGHT_RIGHT_PANEL/2, this) {{
-        }};
+                null, DEFAULT_WIDTH_RIGHT_PANEL /2, DEFAULT_HEIGHT_RIGHT_PANEL/2, this);
         panel.add(lessonContainer);
 
-        lessonContainer.add(CalendarService.getCalendarComponent(new Rectangle(0, 0, DEFAULT_SIZE_CALENDAR, DEFAULT_SIZE_CALENDAR)));
+        lessonContainer.add(CalendarService.getCalendarComponent(new Rectangle(5, 0, lessonContainer.getWidth() - 10,
+                lessonContainer.getWidth() - 10)));
 
         lessonTable = new JTable() {{
             setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
@@ -125,7 +123,7 @@ public class MainFrame extends JFrame {
         }};
         lessonPane = new JScrollPane(lessonTable) {{
             setSize(lessonContainer.getWidth() - 10, lessonContainer.getHeight() - DEFAULT_SIZE_CALENDAR - 15);
-            setLocation(0, DEFAULT_SIZE_CALENDAR + 5);
+            setLocation(5, DEFAULT_SIZE_CALENDAR + 5);
         }};
 
         lessonContainer.add(lessonPane);
@@ -137,9 +135,7 @@ public class MainFrame extends JFrame {
      */
     private void initHeaderContainer(JPanel panel) {
         headerContainer = new Container(0, 0, DEFAULT_WIDTH_HEADER_PANEL, DEFAULT_HEIGHT_HEADER_PANEL, false, false,
-                null, null, DEFAULT_WIDTH_HEADER_PANEL /2, DEFAULT_HEIGHT_HEADER_PANEL/2, this) {{
-            setBackground(Color.BLUE);
-        }};
+                null, null, DEFAULT_WIDTH_HEADER_PANEL /2, DEFAULT_HEIGHT_HEADER_PANEL/2, this);
         panel.add(headerContainer);
 
 
@@ -158,6 +154,14 @@ public class MainFrame extends JFrame {
             addActionListener(e -> viewLesson((LessonType) getSelectedItem()));
         }};
         headerContainer.add(sportComboBox);
+
+        JButton addButton = new JButton() {{
+            setText("Добавить задачу");
+            setLocation(500, 50);
+            setSize(200, 30);
+        }};
+        addButton.addActionListener(e -> EventQueue.invokeLater(AddLessonFrame::new));
+        headerContainer.add(addButton);
     }
 
     private void initGraphicsContainer(JPanel panel) {
@@ -211,23 +215,8 @@ public class MainFrame extends JFrame {
      * Действия при изминении размера окна.
      */
     private void resizeFrame() {
-//        graphicsContainer.setSize(lessonContainer.getX(), graphicsContainer.getHeight());
-//        if (getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL < DEFAULT_LOCATION_GRAPHICS_PANEL_Y) {
-//            if (getHeight() - DEFAULT_LOCATION_GRAPHICS_PANEL_Y < DEFAULT_HEIGHT_GRAPHICS_PANEL/2) {
-//                graphicsContainer.setVisible(false);
-//            } else {
-//                graphicsContainer.setVisible(true);
-//                graphicsContainer.setSize(graphicsContainer.getWidth(), getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL);
-//            }
-//        } else {
-//            graphicsContainer.setLocation(0, getHeight() - DEFAULT_HEIGHT_GRAPHICS_PANEL);
-//        }
         graphicsContainer.resize(this);
         lessonContainer.resize(this);
-
-//        lessonContainer.setLocation(getWidth() - 235, 5);
-//        lessonContainer.setSize(lessonContainer.getWidth(), getHeight());
-
 
         categoryPanel.setLocation(graphicsContainer.getWidth() - 460, 0);
         categoryPanel.setSize(categoryPanel.getWidth(), graphicsContainer.getHeight() - 10);
