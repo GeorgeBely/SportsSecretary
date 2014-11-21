@@ -15,7 +15,6 @@ public class Pushups extends LessonType {
     /**Наименование упражнения на русском */
     private static final String RUSSIAN_NAME = "Отжимания";
 
-
     /**
      * Список характеристик упражнения "отжимания".
      */
@@ -25,6 +24,12 @@ public class Pushups extends LessonType {
         add(new Property("Approaches between time", "Number", "Время между подходами"));
         add(new Property("Slope", "Number", "Наклон"));
     }};
+
+
+    public Pushups() {
+        setProperties(defaultProperties);
+    }
+
 
     public List<Property> getProperties() {
         return defaultProperties;

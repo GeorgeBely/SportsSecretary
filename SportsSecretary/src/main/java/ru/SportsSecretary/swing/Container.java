@@ -1,10 +1,15 @@
 package ru.SportsSecretary.swing;
 
+import javax.swing.*;
+import java.awt.*;
+
 /**
  * Контэйнер для объектов фреёма.
  * Реализует подобие адаптивной вёрстки.
  */
 public class Container extends java.awt.Container {
+
+    private JPanel panel;
 
     private int defaultX;
     private int defaultY;
@@ -18,24 +23,30 @@ public class Container extends java.awt.Container {
     private Integer heightMin;
 
 
-    public Container(int x, int y, int weight, int height, boolean invertedX, boolean invertedY, Integer xMin,
+    public Container(int x, int y, int width, int height, boolean invertedX, boolean invertedY, Integer xMin,
                      Integer yMin, Integer widthMin, Integer heightMin, java.awt.Container parentContainer) {
         this.defaultX = x;
         this.defaultY = y;
         this.xMin = xMin != null ? xMin : x;
         this.yMin = yMin != null ? yMin : y;
-        this.widthMin = widthMin;
-        this.heightMin = heightMin;
+        this.widthMin = widthMin != null ? widthMin : width;
+        this.heightMin = heightMin != null ? heightMin : height;
         this.invertedX = invertedX;
         this.invertedY = invertedY;
-        this.indentWidth = parentContainer.getWidth() - weight - x;
+        this.indentWidth = parentContainer.getWidth() - width - x;
         this.indentHeight = parentContainer.getHeight() - height - y;
+        this.panel = new JPanel() {{
+            setLocation(0, 0);
+            setSize(width, height);
+        }};
+        super.add(panel);
 
-        setSize(weight, height);
+        setSize(width, height);
         setLocation(invertedX ? parentContainer.getWidth() - x : x, invertedY ? parentContainer.getHeight() - y : y);
     }
 
-    public void resize(java.awt.Container parentContainer) {
+    public void resize() {
+        java.awt.Container parentContainer = getParent();
         Integer newLocationX = defaultX;
         if (invertedX) {
             newLocationX = parentContainer.getWidth() - defaultX;
@@ -66,5 +77,20 @@ public class Container extends java.awt.Container {
             setSize(newWidth, newHeight);
             setLocation(newLocationX, newLocationY);
         }
+
+        panel.setSize(getWidth(), getHeight());
+
+        for (Component component : panel.getComponents()) {
+            if (component instanceof Container)
+                ((Container) component).resize();
+        }
+    }
+
+    public Component add(Component comp) {
+        return panel.add(comp);
+    }
+
+    public JPanel getPanel() {
+        return panel;
     }
 }

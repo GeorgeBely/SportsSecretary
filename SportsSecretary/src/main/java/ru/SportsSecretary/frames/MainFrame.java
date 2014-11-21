@@ -66,8 +66,8 @@ public class MainFrame extends JFrame {
     private Container graphicsContainer;
     private JScrollPane lessonPane;
     private JTable lessonTable;
-    private ChartPanel categoryPanel;
-    private ChartPanel piePanel;
+//    private ChartPanel categoryPanel;
+//    private ChartPanel piePanel;
 
     public MainFrame() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -113,6 +113,7 @@ public class MainFrame extends JFrame {
                 DEFAULT_WIDTH_RIGHT_PANEL, DEFAULT_HEIGHT_RIGHT_PANEL, true, false, DEFAULT_LOCATION_RIGHT_PANEL_INVERT_X /2,
                 null, DEFAULT_WIDTH_RIGHT_PANEL /2, DEFAULT_HEIGHT_RIGHT_PANEL/2, this);
         panel.add(lessonContainer);
+        lessonContainer.getPanel().setLayout(null);
 
         lessonContainer.add(CalendarService.getCalendarComponent(new Rectangle(5, 0, lessonContainer.getWidth() - 10,
                 lessonContainer.getWidth() - 10)));
@@ -137,6 +138,7 @@ public class MainFrame extends JFrame {
         headerContainer = new Container(0, 0, DEFAULT_WIDTH_HEADER_PANEL, DEFAULT_HEIGHT_HEADER_PANEL, false, false,
                 null, null, DEFAULT_WIDTH_HEADER_PANEL /2, DEFAULT_HEIGHT_HEADER_PANEL/2, this);
         panel.add(headerContainer);
+        headerContainer.getPanel().setLayout(null);
 
 
         JLabel kindSportLabel = new JLabel() {{
@@ -159,8 +161,8 @@ public class MainFrame extends JFrame {
             setText("Добавить задачу");
             setLocation(500, 50);
             setSize(200, 30);
+            addActionListener(e -> EventQueue.invokeLater(AddLessonFrame::new));
         }};
-        addButton.addActionListener(e -> EventQueue.invokeLater(AddLessonFrame::new));
         headerContainer.add(addButton);
     }
 
@@ -169,24 +171,7 @@ public class MainFrame extends JFrame {
                 DEFAULT_WIDTH_GRAPHICS_PANEL, DEFAULT_HEIGHT_GRAPHICS_PANEL, false, true, null,
                 DEFAULT_LOCATION_GRAPHICS_PANEL_Y/2, DEFAULT_WIDTH_GRAPHICS_PANEL /2, DEFAULT_HEIGHT_GRAPHICS_PANEL/2, this);
         panel.add(graphicsContainer);
-
-        DefaultPieDataset data = new DefaultPieDataset() {{
-            setValue("трицепс", 44);
-            setValue("гантеля", 36);
-            setValue("прес", 26);
-            setValue("бег", 20);
-            setValue("растяжка", 19);
-            setValue("отжимания", 14);
-            setValue("присидания", 14);
-            setValue("подтягивания", 12);
-            setValue("жим лёжа", 11);
-            setValue("прочие", 4);
-        }};
-        piePanel = new ChartPanel(GraphicsService.getPieComponent("Время затраченное на тренировки", data, this.getBackground())) {{
-            setLocation(0, 0);
-            setSize(450, 350);
-        }};
-        graphicsContainer.add(piePanel);
+        graphicsContainer.getPanel().setLayout(null);
 
         TimeSeriesCollection dataSet = new TimeSeriesCollection() {{
             addSeries(new TimeSeries("Гонтеля") {{
@@ -203,24 +188,51 @@ public class MainFrame extends JFrame {
             }});
         }};
 
-        categoryPanel = new ChartPanel(GraphicsService.getTimeSeriesComponent("График отношение веса",
-                                       "Дата тренировки", "вес", dataSet, this.getBackground())) {{
-            setLocation(450, 0);
-            setSize(450, 350);
+        Container categoryContainer = new Container(450, 0, 450, graphicsContainer.getHeight() - 10,
+                true, false, 0, null, 0, 0, graphicsContainer);
+        categoryContainer.getPanel().setLayout(null);
+        ChartPanel categoryPanel = new ChartPanel(GraphicsService.getTimeSeriesComponent("График отношение веса",
+                "Дата тренировки", "вес", dataSet, this.getBackground())) {{
+            setLocation(0, 0);
+            setSize(categoryContainer.getSize());
         }};
-        graphicsContainer.add(categoryPanel);
+        categoryContainer.add(categoryPanel);
+        graphicsContainer.add(categoryContainer);
+
+
+        DefaultPieDataset data = new DefaultPieDataset() {{
+            setValue("трицепс", 44);
+            setValue("гантеля", 36);
+            setValue("прес", 26);
+            setValue("бег", 20);
+            setValue("растяжка", 19);
+            setValue("отжимания", 14);
+            setValue("присидания", 14);
+            setValue("подтягивания", 12);
+            setValue("жим лёжа", 11);
+            setValue("прочие", 4);
+        }};
+        Container pieContainer = new Container(0, 0, categoryContainer.getX() - 10,
+                graphicsContainer.getHeight() - 10, false, false, null, null, 0, 0, graphicsContainer);
+        pieContainer.getPanel().setLayout(null);
+        ChartPanel piePanel = new ChartPanel(GraphicsService.getPieComponent("Время затраченное на тренировки", data, this.getBackground())) {{
+            setLocation(0, 0);
+            setSize(pieContainer.getSize());
+        }};
+        pieContainer.add(piePanel);
+        graphicsContainer.add(pieContainer);
     }
 
     /**
      * Действия при изминении размера окна.
      */
     private void resizeFrame() {
-        graphicsContainer.resize(this);
-        lessonContainer.resize(this);
+        graphicsContainer.resize();
+        lessonContainer.resize();
 
-        categoryPanel.setLocation(graphicsContainer.getWidth() - 460, 0);
-        categoryPanel.setSize(categoryPanel.getWidth(), graphicsContainer.getHeight() - 10);
-        piePanel.setSize(categoryPanel.getX() - 10, graphicsContainer.getHeight() - 10);
+//        categoryPanel.setLocation(graphicsContainer.getWidth() - 460, 0);
+//        categoryPanel.setSize(categoryPanel.getWidth(), graphicsContainer.getHeight() - 10);
+//        piePanel.setSize(categoryPanel.getX() - 10, graphicsContainer.getHeight() - 10);
 
 
         lessonPane.setSize(lessonPane.getWidth(), getHeight() - DEFAULT_SIZE_CALENDAR - DEFAULT_LOCATION_RIGHT_PANEL_Y - 5);

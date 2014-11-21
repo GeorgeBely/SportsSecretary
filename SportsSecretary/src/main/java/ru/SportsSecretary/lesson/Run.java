@@ -20,11 +20,11 @@ public class Run extends LessonType {
      * Список характеристик упражнения бег.
      */
     private static final List<Property> defaultProperties = new ArrayList<Property>() {{
-        add(new Property("time", "Integer", "Бег"));
-        add(new Property("avgSpeed", "Integer", "Средняя скорость"));
-        add(new Property("maxSpeed", "Integer", "Максимальная скорость"));
-        add(new Property("calories", "Integer", "Калории"));
-        add(new Property("distance", "Integer", "Дистанция"));
+        add(new Property("time", "Number", "Бег"));
+        add(new Property("avgSpeed", "Number", "Средняя скорость"));
+        add(new Property("maxSpeed", "Number", "Максимальная скорость"));
+        add(new Property("calories", "Number", "Калории"));
+        add(new Property("distance", "Number", "Дистанция"));
     }};
 
     public List<Property> getProperties() {
